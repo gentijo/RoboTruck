@@ -11,6 +11,11 @@
 // Select a Timer Clock
 #define USING_TIM_DIV1                false           // for shortest and most accurate timer
 #define USING_TIM_DIV16               true           // for medium time and medium accurate timer
-#define USING_TIM_DIV256              true            // for longest timer but least accurate. Default
+#define USING_TIM_DIV256              false            // for longest timer but least accurate. Default
 
-#include "ESP8266TimerInterrupt.h"
+#if defined(ESP8266)
+  #include "ESP8266TimerInterrupt.h"
+#else
+  #error No native timer interrupt code found for this board
+  #error Please check your Tools->Board setting.
+#endif

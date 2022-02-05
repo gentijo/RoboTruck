@@ -1,15 +1,5 @@
-// Wire Slave Receiver
-// by devyte
-// based on the example by Nicholas Zambetti <http://www.zambetti.com>
-
-// Demonstrates use of the Wire library
-// Receives data as an I2C/TWI slave device
-// Refer to the "Wire Master Writer" example for use with this
-
-// This example code is in the public domain.
-
-
 #include <Wire.h>
+#include "BTS7960.h"
 
 #define SDA_PIN 4
 #define SCL_PIN 5
@@ -17,26 +7,25 @@
 const int16_t I2C_MASTER = 0x42;
 const int16_t I2C_SLAVE = 0x08;
 
+//BTS7960 bts7960_device;
+
+//=======================================================================
+//                               Setup
+//=======================================================================
 void setup() {
   Serial.begin(115200);           // start serial for output
-  Serial.println("\r\nHello world");
+  while (!Serial);
   
+  Serial.println("\r\n8266 IOWidget Setup");
   Wire.begin(SDA_PIN, SCL_PIN, I2C_SLAVE); // new syntax: join i2c bus (address required for slave)
   Wire.onReceive(receiveEvent); // register event
 
- //=======================================================================
-//                               Setup
-//=======================================================================
-void setup()
-{
-  Serial.begin(115200);
-  while (!Serial);
 
   delay(300);
 
- 
-}
-
+  Serial.print(F("\nStarting TimerInterruptTest on ")); Serial.println(ARDUINO_BOARD);
+  Serial.println(ESP8266_TIMER_INTERRUPT_VERSION);
+  Serial.print(F("CPU Frequency = ")); Serial.print(F_CPU / 1000000); Serial.println(F(" MHz"));
 }
 
 void loop() {
@@ -48,6 +37,7 @@ enum ERROR_CODE {
 
 //
 // command format
+// Device
 // Cmd    Byte, Define command to execute. 
 // Data   Byte, Data supporting the command
 //
