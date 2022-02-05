@@ -23,9 +23,27 @@ void setup() {
   
   Wire.begin(SDA_PIN, SCL_PIN, I2C_SLAVE); // new syntax: join i2c bus (address required for slave)
   Wire.onReceive(receiveEvent); // register event
+
+ //=======================================================================
+//                               Setup
+//=======================================================================
+void setup()
+{
+  Serial.begin(115200);
+  while (!Serial);
+
+  delay(300);
+
+ 
+}
+
 }
 
 void loop() {
+}
+
+enum ERROR_CODE {
+  INVALID_COMMAND = 0x0 
 }
 
 //
@@ -41,7 +59,7 @@ void receiveEvent(size_t howMany) {
 
 
   int size = Wire.available();
-  if (size < 2) setError(INVALID_COMMAND);
+  if (size < 2) setError(ERROR_CODE.INVALID_COMMAND);
   cmd = Wire.read();
 
   // Command contains data ?
@@ -59,5 +77,8 @@ void receiveEvent(size_t howMany) {
 
 void execCommand(byte cmd, byte data[])
 {
+  switch(cmd){
+    case 
+  }
   
 }
