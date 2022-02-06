@@ -8,7 +8,8 @@
 #include "WProgram.h"
 #endif
 
-#include "TimmerInterrupt.h"
+#include "TimerInterrupt.h"
+
 
 class BTS7960
 {
@@ -26,14 +27,17 @@ class BTS7960
   private:
     void enable();
     void disable();
+    void IRAM_ATTR TimerHandler();
 
     uint8_t _EN_PIN_A;
     uint8_t _EN_PIN_B;
     uint8_t _PWM_PIN_A;
     uint8_t _PWM_PIN_B;
+    uint8_t _SPEED;
 
     // Init ESP8266 timer 1
     ESP8266Timer ITimer;
+
 
 };
 #endif

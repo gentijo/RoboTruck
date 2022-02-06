@@ -13,15 +13,13 @@ const int16_t I2C_SLAVE = 0x08;
 //                               Setup
 //=======================================================================
 void setup() {
+  
   Serial.begin(115200);           // start serial for output
   while (!Serial);
   
   Serial.println("\r\n8266 IOWidget Setup");
   Wire.begin(SDA_PIN, SCL_PIN, I2C_SLAVE); // new syntax: join i2c bus (address required for slave)
   Wire.onReceive(receiveEvent); // register event
-
-
-  delay(300);
 
   Serial.print(F("\nStarting TimerInterruptTest on ")); Serial.println(ARDUINO_BOARD);
   Serial.println(ESP8266_TIMER_INTERRUPT_VERSION);
@@ -31,9 +29,6 @@ void setup() {
 void loop() {
 }
 
-enum ERROR_CODE {
-  INVALID_COMMAND = 0x0 
-}
 
 //
 // command format
@@ -49,26 +44,23 @@ void receiveEvent(size_t howMany) {
 
 
   int size = Wire.available();
-  if (size < 2) setError(ERROR_CODE.INVALID_COMMAND);
+//  if (size < 2) setError(ERROR_CODE.INVALID_COMMAND);
   cmd = Wire.read();
 
   // Command contains data ?
   byte x = 0;
   if (size > 2) {
-      byte data[wire.available() -1];
+      byte data[Wire.available() -1];
       while (1 < Wire.available()) { // loop through all but the last
         data[x++] = Wire.read(); // receive byte as a character
     }
     execCommand(cmd, data);
   }
 
-  execCommand(cmd, null);
+  execCommand(cmd, NULL);
 }
 
-void execCommand(byte cmd, byte data[])
+void execCommand(uint8_t cmd, uint8_t data[])
 {
-  switch(cmd){
-    case 
-  }
-  
+
 }
