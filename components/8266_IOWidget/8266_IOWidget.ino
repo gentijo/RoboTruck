@@ -7,7 +7,11 @@
 const int16_t I2C_MASTER = 0x42;
 const int16_t I2C_SLAVE = 0x08;
 
-//BTS7960 bts7960_device;
+#define BTS7960_DEVID   1
+#define BTS7960_enabled false
+
+
+BTS7960 dev_BTS7960;
 
 //=======================================================================
 //                               Setup
@@ -36,31 +40,35 @@ void loop() {
 // Cmd    Byte, Define command to execute. 
 // Data   Byte, Data supporting the command
 //
-void receiveEvent(size_t howMany) {
-
-  byte cmd;
+void receiveEvent(size_t howMany) 
+{
   Serial.print("Receive Event: count ");
   Serial.println(howMany, DEC);
 
-
   int size = Wire.available();
-//  if (size < 2) setError(ERROR_CODE.INVALID_COMMAND);
-  cmd = Wire.read();
+  if (size < 3) return;
+  
+  uint8_t devid = Wire.read();
+  uint8_t cmd = Wire.read();
 
   // Command contains data ?
   byte x = 0;
-  if (size > 2) {
+  if (size > 3) {
       byte data[Wire.available() -1];
       while (1 < Wire.available()) { // loop through all but the last
         data[x++] = Wire.read(); // receive byte as a character
     }
-    execCommand(cmd, data);
+    execCommand(devid, cmd, data);
   }
 
-  execCommand(cmd, NULL);
+  execCommand(devid, cmd, NULL);
 }
 
-void execCommand(uint8_t cmd, uint8_t data[])
+void execCommand(uint8_t devid, uint8_t cmd, uint8_t data[])
 {
+
+#ifdef  BTS7960_enabled
+  if (devid == BTS7960_DEVID) dev_BTS7960.executeCommand(cmd, data);
+#endif
 
 }

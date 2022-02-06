@@ -14,26 +14,30 @@
 class BTS7960
 {
   public:
-    BTS7960(uint8_t EN_A, uint8_t EN_B, uint8_t PWM_A, uint8_t PWM_B);
+    BTS7960();
 
-    BTS7960(uint8_t PWM_A, uint8_t PWM_B) { BTS7960( 0,0, PWM_A, PWM_B); }
+    void init(uint8_t EN_PIN_R, uint8_t EN_PIN_L, uint8_t PWM_PIN_R, uint8_t PWM_PIN_L);
+    void init();
 
-	  void setSpeed(uint8_t speed);
-	  void run(uint8_t dir);
-	  void stop();
-    void brake();
+    void executeCommand(uint8_t cmd, uint8_t data[]);
+
+	  void motor_setSpeed(uint8_t speed);
+	  void motor_run(uint8_t dir);
+	  void motor_stop();
+    void motor_brake();
 
     
   private:
-    void enable();
-    void disable();
-    void IRAM_ATTR TimerHandler();
+    void motor_enable();
+    void motor_disable();
 
-    uint8_t _EN_PIN_A;
-    uint8_t _EN_PIN_B;
-    uint8_t _PWM_PIN_A;
-    uint8_t _PWM_PIN_B;
-    uint8_t _SPEED;
+    void _init();
+
+    uint8_t EN_PIN_L;
+    uint8_t EN_PIN_R;
+    uint8_t PWM_PIN_L;
+    uint8_t PWM_PIN_R;
+    uint8_t SPEED;
 
     // Init ESP8266 timer 1
     ESP8266Timer ITimer;
