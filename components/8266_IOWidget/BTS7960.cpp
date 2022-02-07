@@ -2,7 +2,7 @@
 #include "BTS7960.h"
 #include "DeviceCommands.h"
 
-#define BUILTIN_LED     2       // Pin D4 mapped to pin GPIO2/TXD1 of ESP8266, NodeMCU and WeMoS, control on-board LED
+#define BUILTIN_LED     D4       // Pin D4 mapped to pin GPIO2/TXD1 of ESP8266, NodeMCU and WeMoS, control on-board LED
 volatile bool     statusLed = false;
 volatile uint32_t lastMillis = 0;
 
@@ -21,11 +21,11 @@ void IRAM_ATTR BTS7960_TimerHandler()
 
   digitalWrite(BUILTIN_LED, statusLed);  //Toggle LED Pin
   statusLed = !statusLed;
+  
+  if (statusLed)  digitalWrite(D5, LOW);
+  else digitalWrite(D5, HIGH);
 
-#if (TIMER_INTERRUPT_DEBUG > 0)
-  Serial.println("Delta ms = " + String(millis() - lastMillis));
-  lastMillis = millis();
-#endif
+
 }
 
 BTS7960::BTS7960()
@@ -35,6 +35,7 @@ BTS7960::BTS7960()
   EN_PIN_L = 0;
   EN_PIN_R = 0;
   SPEED = 0;
+
 }
 
 void BTS7960::init(uint8_t _EN_PIN_R, uint8_t _EN_PIN_L, uint8_t _PWM_PIN_R, uint8_t _PWM_PIN_L) 
@@ -48,7 +49,7 @@ void BTS7960::init(uint8_t _EN_PIN_R, uint8_t _EN_PIN_L, uint8_t _PWM_PIN_R, uin
   
   SPEED = 0;  
   
-  init();
+  _init();
 }
 
 void BTS7960::init() 
@@ -58,7 +59,7 @@ void BTS7960::init()
   EN_PIN_L =  D8;
   EN_PIN_R  = D0;
   SPEED = 0;  
-  init();
+  _init();
 }
 
 void BTS7960::_init()
@@ -67,11 +68,12 @@ void BTS7960::_init()
   pinMode(PWM_PIN_R, OUTPUT);
   pinMode(EN_PIN_L, OUTPUT);
   pinMode(EN_PIN_R, OUTPUT);
+  motor_stop();
+  motor_disable();
  
   // Interval in microsecs
-  if (ITimer.attachInterruptInterval(TIMER_INTERVAL_MS * 1000, BTS7960_TimerHandler))
+  if (ITimer.attachInterruptInterval(PWM_TIMING_INTERVAL_US , BTS7960_TimerHandler))
   {
-    lastMillis = millis();
     Serial.print(F("Starting ITimer OK, millis() = ")); Serial.println(lastMillis);
   }
   else
@@ -117,13 +119,13 @@ void BTS7960::motor_run(uint8_t dir)
   
   if (dir == 0)
   {
-    analogWrite(PWM_PIN_L, LOW);
-    analogWrite(PWM_PIN_R, SPEED);
+    digitalWrite(PWM_PIN_L, LOW);
+    digitalWrite(PWM_PIN_R, SPEED);
   }
   else
   {
-    analogWrite(PWM_PIN_L, SPEED);
-    analogWrite(PWM_PIN_R, LOW);
+    digitalWrite(PWM_PIN_L, SPEED);
+    digitalWrite(PWM_PIN_R, LOW);
   }
   
   delayMicroseconds(100);
@@ -134,19 +136,19 @@ void BTS7960::motor_run(uint8_t dir)
 
 void BTS7960::motor_stop()
 {
-  analogWrite(PWM_PIN_L, LOW);
-  analogWrite(PWM_PIN_R, LOW);
+  digitalWrite(PWM_PIN_L, LOW);
+  digitalWrite(PWM_PIN_R, LOW);
   motor_disable();
 }
 
 
 void BTS7960::motor_brake()
 {
-  analogWrite(PWM_PIN_L, HIGH);
-  analogWrite(PWM_PIN_R, HIGH);
+  digitalWrite(PWM_PIN_L, HIGH);
+  digitalWrite(PWM_PIN_R, HIGH);
   delayMicroseconds(1000);
-  analogWrite(PWM_PIN_L, LOW);
-  analogWrite(PWM_PIN_R, LOW);
+  digitalWrite(PWM_PIN_L, LOW);
+  digitalWrite(PWM_PIN_R, LOW);
   motor_disable();
 }
 

@@ -10,6 +10,7 @@
 
 #include "TimerInterrupt.h"
 
+#define PWM_TIMING_INTERVAL_US 1
 
 class BTS7960
 {

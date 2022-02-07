@@ -1,4 +1,4 @@
-#define TIMER_INTERVAL_MS       1000
+
 
 // These define's must be placed at the beginning before 
 // #include "ESP8266TimerInterrupt.h"
