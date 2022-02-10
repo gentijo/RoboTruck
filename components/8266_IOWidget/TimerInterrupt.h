@@ -9,8 +9,8 @@
 #define _TIMERINTERRUPT_LOGLEVEL_     0
 
 // Select a Timer Clock
-#define USING_TIM_DIV1                false           // for shortest and most accurate timer
-#define USING_TIM_DIV16               true           // for medium time and medium accurate timer
+#define USING_TIM_DIV1                true           // for shortest and most accurate timer
+#define USING_TIM_DIV16               false           // for medium time and medium accurate timer
 #define USING_TIM_DIV256              false            // for longest timer but least accurate. Default
 
 #if defined(ESP8266)

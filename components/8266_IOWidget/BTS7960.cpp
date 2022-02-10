@@ -1,31 +1,15 @@
-
 #include "BTS7960.h"
 #include "DeviceCommands.h"
 
-#define BUILTIN_LED     D4       // Pin D4 mapped to pin GPIO2/TXD1 of ESP8266, NodeMCU and WeMoS, control on-board LED
-volatile bool     statusLed = false;
-volatile uint32_t lastMillis = 0;
-
-
+BTS7960 *_bts7960 = NULL;
 
 //=======================================================================
-void IRAM_ATTR BTS7960_TimerHandler()
+void IRAM_ATTR BTS7960_PWM_Handler()
 {
-  static bool started = false;
-
-  if (!started)
-  {
-    started = true;
-    pinMode(BUILTIN_LED, OUTPUT);
-  }
-
-  digitalWrite(BUILTIN_LED, statusLed);  //Toggle LED Pin
-  statusLed = !statusLed;
-  
-  if (statusLed)  digitalWrite(D5, LOW);
-  else digitalWrite(D5, HIGH);
-
-
+  if ((_bts7960 == NULL) ||
+      (_bts7960->isInit() == false)) return;
+      
+  _bts7960->run_PWM();
 }
 
 BTS7960::BTS7960()
@@ -35,11 +19,13 @@ BTS7960::BTS7960()
   EN_PIN_L = 0;
   EN_PIN_R = 0;
   SPEED = 0;
-
+  IS_INIT = false;
 }
 
 void BTS7960::init(uint8_t _EN_PIN_R, uint8_t _EN_PIN_L, uint8_t _PWM_PIN_R, uint8_t _PWM_PIN_L) 
 {
+  Serial.println("BTS7960 Init");
+  
   if ((PWM_PIN_R == 0) || (PWM_PIN_L == 0)) return;
   PWM_PIN_R = _PWM_PIN_R;
   PWM_PIN_L = _PWM_PIN_L;
@@ -54,32 +40,40 @@ void BTS7960::init(uint8_t _EN_PIN_R, uint8_t _EN_PIN_L, uint8_t _PWM_PIN_R, uin
 
 void BTS7960::init() 
 {
-  PWM_PIN_R = D7;
-  PWM_PIN_L = D4;
-  EN_PIN_L =  D8;
-  EN_PIN_R  = D0;
+  Serial.println("BTS7960 Default Init");
+  
+  PWM_PIN_R = 13; //D7;
+  PWM_PIN_L = 2;  //D4;
+  EN_PIN_L =  15; //D8;
+  EN_PIN_R  = 16; //D0;
   SPEED = 0;  
   _init();
 }
 
 void BTS7960::_init()
 {
+  Serial.println("BTS7960 _Init");
+
   pinMode(PWM_PIN_L, OUTPUT);
   pinMode(PWM_PIN_R, OUTPUT);
   pinMode(EN_PIN_L, OUTPUT);
   pinMode(EN_PIN_R, OUTPUT);
   motor_stop();
   motor_disable();
- 
-  // Interval in microsecs
-  if (ITimer.attachInterruptInterval(PWM_TIMING_INTERVAL_US , BTS7960_TimerHandler))
+  
+  Serial.println("BTS7960 Start iTimer");
+
+  if (ITimer.attachInterruptInterval(PWM_TIMING_INTERVAL_US, BTS7960_PWM_Handler))
   {
-    Serial.print(F("Starting ITimer OK, millis() = ")); Serial.println(lastMillis);
+    Serial.print(F("Starting BTS7960 ITimer OK"));
   }
   else
   {
-    Serial.println(F("Can't set ITimer correctly. Select another freq. or interval"));
+    Serial.println(F("Can't set BTS7960 ITimer correctly"));
   }
+
+  _bts7960 = this;
+  IS_INIT = true;
 
 }
 
@@ -106,14 +100,49 @@ void BTS7960::executeCommand(uint8_t cmd, uint8_t data[])
   }
 }
 
+// SPEED determines the positive pulse of the PWM signal.
+// Values can be 0 - 100, where 0 = off and 100 = full speed.
+//
+void BTS7960::run_PWM()
+{
+  if (++PWM_COUNTER > 100) PWM_COUNTER=0;
+  
+  if (PWM_COUNTER >= CURR_SPEED) 
+  {
+    if (PWM_STATE != 1)
+    {
+      PWM_STATE=1;
+      digitalWrite(PWM_PIN_L, LOW);
+      digitalWrite(PWM_PIN_R, LOW);
+    }
+  }
+  else if (PWM_STATE != 2)
+  {
+    PWM_STATE=2;
+    motor_disable();
+    if (dir == Forward)
+    {
+      digitalWrite(PWM_PIN_L, LOW);
+      digitalWrite(PWM_PIN_R, HIGH);
+    }
+    else
+    {
+      digitalWrite(PWM_PIN_L, HIGH);
+      digitalWrite(PWM_PIN_R, LOW);
+    }
+    motor_enable();
+  }
+}
+
 
 void BTS7960::motor_setSpeed(uint8_t speed)
 {
+  if (SPEED > 100) speed = 100;
   SPEED = speed;
 }
 
 
-void BTS7960::motor_run(uint8_t dir)
+void BTS7960::motor_run(uint8_t dir, uint8_t distance)
 {
   motor_disable();
   
