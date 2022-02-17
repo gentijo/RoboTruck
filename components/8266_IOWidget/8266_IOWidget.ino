@@ -1,39 +1,40 @@
 #include <Wire.h>
-#include "BTS7960.h"
-
-#define SDA_PIN 4
-#define SCL_PIN 5
-
-const int16_t I2C_MASTER = 0x42;
-const int16_t I2C_SLAVE = 0x08;
-
-#define BTS7960_DEVID   1
-#define BTS7960_enabled true
+#include "DeviceConfig.h"
 
 #if  BTS7960_enabled == true
 BTS7960 dev_BTS7960;
 #endif
+
+const int16_t g_I2C_MASTER = I2C_MASTER_ADDR;
+const int16_t g_I2C_SLAVE = I2C_SLAVE_ADDR;
+
 
 //=======================================================================
 //                               Setup
 //=======================================================================
 void setup() {
   
-  Serial.begin(115200);           // start serial for output
-  while (!Serial);
+  Serial.begin(115200);  
   
-  Serial.println("\r\n8266 IOWidget Setup");
-  Wire.begin(SDA_PIN, SCL_PIN, I2C_SLAVE); // new syntax: join i2c bus (address required for slave)
-  Wire.onReceive(receiveEvent); // register event
-
-  Serial.print(F("\nStarting TimerInterruptTest on ")); Serial.println(ARDUINO_BOARD);
-  Serial.println(ESP8266_TIMER_INTERRUPT_VERSION);
+  Serial.println("\r\nMotor Widget Setup");
   Serial.print(F("CPU Frequency = ")); Serial.print(F_CPU / 1000000); Serial.println(F(" MHz"));
 
+#if  BTS7960_enabled == true
   dev_BTS7960.init();
+#endif
+  
+  Wire.begin(SDA_PIN, SCL_PIN, I2C_SLAVE_ADDR); 
+  Wire.onReceive(receiveEvent);
 }
 
 void loop() {
+  
+  delay(1000);
+    
+#if  BTS7960_enabled == true
+      dev_BTS7960.runBackground();
+#endif
+
 }
 
 
