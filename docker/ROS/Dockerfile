@@ -15,8 +15,8 @@ ENV LANGUAGE en_US.UTF-8
 ENV DISPLAY=host.docker.internal:0
 RUN apt-get install -y xterm
 
-COPY ./files/ros_entrypoint.sh /
-COPY ./files/ros_profile.sh /etc/profile.d
+COPY ros_entrypoint.sh /opt/ros
+COPY ros_profile.sh /etc/profile.d
 
 RUN apt update
 RUN apt -y upgrade
@@ -37,4 +37,4 @@ RUN add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vs
 RUN apt update
 RUN apt install -y code
 
-ENTRYPOINT ["/ros_entrypoint.sh"]
+#ENTRYPOINT ["/opt/ros/ros_entrypoint.sh"]
