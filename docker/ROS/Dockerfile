@@ -5,8 +5,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # install ros2 packages
 RUN apt-get update
-RUN apt-get install -y ros-galactic-desktop
-RUN rm -rf /var/lib/apt/lists/*
 
 ENV LC_ALL C
 ENV LANG en_US.UTF-8
@@ -15,14 +13,21 @@ ENV LANGUAGE en_US.UTF-8
 ENV DISPLAY=host.docker.internal:0
 RUN apt-get install -y xterm
 
-COPY ros_entrypoint.sh /opt/ros
-COPY ros_profile.sh /etc/profile.d
+COPY ./files/ros_entrypoint.sh /opt/ros
+COPY ./files/ros_profile.sh /etc/profile.d
 
 RUN apt update
-RUN apt -y upgrade
+#RUN apt -y upgrade
 
+RUN apt install -y software-properties-common apt-transport-https
+RUN apt install -y wget emacs xterm gnupg2
+
+RUN apt install -y ros-galactic-desktop
+RUN rm -rf /var/lib/apt/lists/*
+
+RUN add-apt-repository ppa:mattrose/terminator
+RUN apt update
 RUN apt install -y terminator
-RUN apt install -y wget gnupg2 software-properties-common apt-transport-https emacs
 
 RUN useradd -s /bin/bash -m rosdev
 
