@@ -3,24 +3,26 @@ FROM ros:galactic-ros-base-focal
 ENV TERM=xterm-color
 ENV DEBIAN_FRONTEND=noninteractive
 
-# install ros2 packages
-RUN apt-get update
-
 ENV LC_ALL C
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
 ENV DISPLAY=host.docker.internal:0
-RUN apt-get install -y xterm
 
 COPY ./files/ros_entrypoint.sh /opt/ros
 COPY ./files/ros_profile.sh /etc/profile.d
 
 RUN apt update
-#RUN apt -y upgrade
+RUN apt update
+
+RUN apt -y upgrade
 
 RUN apt install -y software-properties-common apt-transport-https
-RUN apt install -y wget emacs xterm gnupg2
+RUN apt install -y apt-utils
+RUN apt install -y wget
+RUN apt install -y emacs-nox
+#RUN apt install -y xterm
+RUN apt install -y gnupg1
 
 RUN apt install -y ros-galactic-desktop
 RUN rm -rf /var/lib/apt/lists/*

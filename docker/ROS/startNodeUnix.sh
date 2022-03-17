@@ -9,6 +9,6 @@ docker run --privileged -it \
 --env XAUTHORITY=/root/.Xauthority \
 -v $XAUTHORITY:/root/.Xauthority \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
-rosimg bash
+rosimg2 bash
 
 #-v /home/gentijo/Projects/ROS-Projects/tutorial_ws/src/ros_tutorials:/opt/ros/dev-ws/src/ros_tutorials \
