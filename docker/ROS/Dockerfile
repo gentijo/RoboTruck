@@ -23,6 +23,10 @@ RUN apt install -y wget
 RUN apt install -y emacs-nox
 #RUN apt install -y xterm
 RUN apt install -y gnupg1
+RUN apt install -y net-tools
+RUN apt install -y iputils-ping
+RUN apt install -y lighttpd
+RUN apt install -y iproute2 
 
 RUN apt install -y ros-galactic-desktop
 RUN rm -rf /var/lib/apt/lists/*
